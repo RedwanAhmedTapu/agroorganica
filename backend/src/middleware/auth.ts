@@ -10,7 +10,12 @@ const COOKIE_NAME = "ao_token";
 export function signToken(adminId: string) {
   const secret = process.env.JWT_TOKEN as string;
   const expiresIn = process.env.JWT_EXPIRES_IN || "7d";
-  return jwt.sign({ sub: adminId }, secret, { expiresIn } as jwt.SignOptions);
+
+  return jwt.sign(
+    { sub: adminId },
+    secret,
+    { expiresIn } as jwt.SignOptions
+  );
 }
 
 export function setAuthCookie(res: Response, token: string) {
@@ -27,26 +32,40 @@ export function clearAuthCookie(res: Response) {
   res.clearCookie(COOKIE_NAME, { path: "/" });
 }
 
-// Reads the JWT from the httpOnly cookie first (preferred — never touches
-// localStorage), falling back to an Authorization: Bearer header for
-// non-browser clients / testing tools like Postman.
-export function requireAuth(req: AuthedRequest, res: Response, next: NextFunction) {
+export function requireAuth(
+  req: AuthedRequest,
+  res: Response,
+  next: NextFunction
+) {
   try {
     const cookieToken = req.cookies?.[COOKIE_NAME];
     const header = req.headers.authorization;
-    const bearerToken = header?.startsWith("Bearer ") ? header.slice(7) : undefined;
+
+    const bearerToken = header?.startsWith("Bearer ")
+      ? header.slice(7)
+      : undefined;
+
     const token = cookieToken || bearerToken;
 
     if (!token) {
-      return res.status(401).json({ error: "Not authenticated" });
+      return res.status(401).json({
+        error: "Not authenticated",
+      });
     }
 
     const secret = process.env.JWT_TOKEN as string;
-    const payload = jwt.verify(token, secret) as { sub: string };
+
+    const payload = jwt.verify(token, secret) as {
+      sub: string;
+    };
+
     req.adminId = payload.sub;
+
     next();
   } catch (err) {
-    return res.status(401).json({ error: "Invalid or expired session" });
+    return res.status(401).json({
+      error: "Invalid or expired session",
+    });
   }
 }
 
