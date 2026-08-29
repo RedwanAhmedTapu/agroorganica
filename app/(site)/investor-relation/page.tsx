@@ -5,6 +5,7 @@ import { useAppData } from "@/lib/DataContext";
 import { SecondaryNav } from "@/components/SecondaryNav";
 import { C } from "@/components/ui";
 import { FileText } from "lucide-react";
+import { getFileUrl } from "@/lib/api";
 
 export default function InvestorRelationPage() {
   const { data } = useAppData();
@@ -30,7 +31,7 @@ export default function InvestorRelationPage() {
                 {item.pdfs.map((pdf) => (
                   <a
                     key={pdf.id}
-                    href={pdf.dataUrl}
+                    href={getFileUrl(pdf.dataUrl)}
                     target="_blank"
                     rel="noreferrer"
                     className="flex items-center gap-3 px-4 py-3 rounded-md"

@@ -134,7 +134,15 @@ export async function uploadImageFile(file: File, usage: UploadUsage = "site-gen
   }
   return body as { success: true; url: string; width?: number; height?: number; kind: "image" | "video" };
 }
+export function getFileUrl(url: string) {
+  if (!url) return "";
 
+  if (url.startsWith("http://") || url.startsWith("https://")) {
+    return url;
+  }
+
+  return `${API_URL}${url}`;
+}
 export async function uploadPdfFile(file: File) {
   const form = new FormData();
   form.append("pdf", file);
