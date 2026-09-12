@@ -130,7 +130,7 @@ export default function SiteHeader() {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [openKey, setOpenKey] = useState<string | null>(null);
-  const { data } = useAppData();
+  const { data, ready } = useAppData();
   const navRef = useRef<HTMLDivElement>(null);
 
   // Build the navbar straight from the same content the pages themselves
@@ -148,7 +148,7 @@ export default function SiteHeader() {
     },
     {
       key: "brands-products",
-      label: "Brands & Products",
+      label: "Products",
       href: "/brands-products",
       children: data.brandsProducts.categories.map((c) => ({ id: c.id, label: c.name, href: `/brands-products?cat=${c.id}` })),
     },
@@ -179,6 +179,32 @@ export default function SiteHeader() {
     document.addEventListener("mousedown", onClick);
     return () => document.removeEventListener("mousedown", onClick);
   }, []);
+
+  // Same reasoning as the footer: don't flash the placeholder/seed
+  // company name and nav items before swapping to the real ones a moment
+  // later — show a plain skeleton bar (same height, so nothing shifts)
+  // until the real content has loaded.
+  if (!ready) {
+    return (
+      <div style={{ backgroundColor: C.primary }}>
+        <div className="h-1" style={{ backgroundColor: C.gold }} />
+        <div className="max-w-6xl mx-auto px-4 flex items-center justify-between h-16">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-full animate-pulse" style={{ backgroundColor: "rgba(255,255,255,0.15)" }} />
+            <div className="flex flex-col gap-1.5">
+              <div className="rounded animate-pulse" style={{ width: 110, height: 12, backgroundColor: "rgba(255,255,255,0.15)" }} />
+              <div className="rounded animate-pulse" style={{ width: 70, height: 8, backgroundColor: "rgba(255,255,255,0.15)" }} />
+            </div>
+          </div>
+          <div className="hidden md:flex items-center gap-6">
+            {[70, 100, 90, 70, 60].map((w, i) => (
+              <div key={i} className="rounded animate-pulse" style={{ width: w, height: 10, backgroundColor: "rgba(255,255,255,0.15)" }} />
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={{ backgroundColor: C.primary }}>

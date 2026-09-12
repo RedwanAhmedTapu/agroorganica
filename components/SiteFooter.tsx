@@ -98,12 +98,60 @@ function FooterColumnBlock({ col }: { col: FooterColumn }) {
   );
 }
 
+// Shown while the real content is loading, instead of the seed/placeholder
+// data — same general shape as the real footer (brand block left, four
+// columns right) so nothing jumps around once the real data swaps in.
+function FooterSkeleton() {
+  const bar = (w: string, h = "0.75rem") => (
+    <div className="rounded animate-pulse" style={{ width: w, height: h, backgroundColor: "rgba(255,255,255,0.12)" }} />
+  );
+  return (
+    <footer style={{ backgroundColor: C.primary }}>
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-10 sm:pt-14 pb-8">
+        <div className="grid gap-8 md:gap-10 md:grid-cols-[280px_1fr]">
+          <div className="min-w-0 flex flex-col gap-3">
+            <div className="flex items-center gap-2.5 mb-1">
+              <div className="w-9 h-9 rounded-full animate-pulse" style={{ backgroundColor: "rgba(255,255,255,0.15)" }} />
+              <div className="flex flex-col gap-1.5">
+                {bar("120px")}
+                {bar("80px", "0.5rem")}
+              </div>
+            </div>
+            {bar("100%")}
+            {bar("90%")}
+            {bar("70%")}
+            <div className="flex gap-2 mt-2">
+              {bar("70px", "1.75rem")}
+              {bar("80px", "1.75rem")}
+              {bar("70px", "1.75rem")}
+            </div>
+          </div>
+          <div className="grid gap-6 sm:gap-8 grid-cols-2 sm:grid-cols-4 min-w-0">
+            {[0, 1, 2, 3].map((i) => (
+              <div key={i} className="flex flex-col gap-3">
+                {bar("70px", "0.65rem")}
+                {bar("90%")}
+                {bar("70%")}
+                {bar("80%")}
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="mt-10 sm:mt-12 pt-6" style={{ borderTop: "1px solid rgba(255,255,255,0.15)" }}>
+          {bar("160px")}
+        </div>
+      </div>
+    </footer>
+  );
+}
+
 export default function SiteFooter() {
   const year = new Date().getFullYear();
   const [certifications, setCertifications] = useState<string[]>([]);
   const [productBrochureUrl, setProductBrochureUrl] = useState("");
   const [socialLinks, setSocialLinks] = useState<{ id: string; platform: string; icon: string; url: string; color?: string; active: boolean }[]>([]);
-  const { data } = useAppData();
+  const [footerSettingsReady, setFooterSettingsReady] = useState(false);
+  const { data, ready } = useAppData();
   const s = data.siteSettings;
 
   useEffect(() => {
@@ -113,7 +161,8 @@ export default function SiteFooter() {
         setProductBrochureUrl(r.productBrochureUrl || "");
         setSocialLinks(r.socialLinks.filter((l) => l.active));
       })
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => setFooterSettingsReady(true));
   }, []);
 
   // Quick Links / Investors / Media are generated straight from the same
@@ -184,6 +233,15 @@ export default function SiteFooter() {
   const brochureIsUpload = productBrochureUrl.startsWith("/uploads/");
   const brochureHref = productBrochureUrl ? (brochureIsUpload ? getFileUrl(productBrochureUrl) : productBrochureUrl) : "";
 
+  // Don't paint the footer with placeholder/seed content and then swap to
+  // the real company's data a moment later — that flash (wrong name, wrong
+  // Quick Links, no badges) is worse than a brief loading skeleton. Wait
+  // for both the main site content and the footer-only settings (badges,
+  // social links, brochure) to finish loading before showing anything.
+  if (!ready || !footerSettingsReady) {
+    return <FooterSkeleton />;
+  }
+
   return (
     <footer className="relative" style={{ backgroundColor: C.primary }}>
       <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-10 sm:pt-14 pb-8">
@@ -219,7 +277,7 @@ export default function SiteFooter() {
             {/* Certification badges — sit directly under the logo/name/
                 description, not as their own grid column. */}
             {certifications.length > 0 && (
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-wrap gap-2">
                 {certifications.map((c, i) => (
                   <div
                     key={i}
