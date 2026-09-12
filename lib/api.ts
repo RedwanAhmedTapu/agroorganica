@@ -50,9 +50,16 @@ export const deleteMessage = (id: string) => request(`/api/content/messages/${id
 
 export type SocialLink = { id: string; platform: string; icon: string; url: string; color?: string; active: boolean };
 
-export const getFooterSettings = () => request<{ socialLinks: SocialLink[]; allowedIcons: string[] }>("/api/footer");
-export const saveFooterSettings = (socialLinks: SocialLink[]) =>
-  request<{ socialLinks: SocialLink[] }>("/api/footer", { method: "PUT", body: JSON.stringify({ socialLinks }) });
+export type FooterSettings = {
+  socialLinks: SocialLink[];
+  allowedIcons: string[];
+  certifications: string[];
+  productBrochureUrl: string;
+};
+
+export const getFooterSettings = () => request<FooterSettings>("/api/footer");
+export const saveFooterSettings = (payload: { socialLinks: SocialLink[]; certifications: string[]; productBrochureUrl: string }) =>
+  request<FooterSettings>("/api/footer", { method: "PUT", body: JSON.stringify(payload) });
 
 // ---------- Auth ----------
 
@@ -134,10 +141,22 @@ export async function uploadImageFile(file: File, usage: UploadUsage = "site-gen
   }
   return body as { success: true; url: string; width?: number; height?: number; kind: "image" | "video" };
 }
-export function getFileUrl(url: string) {
+export function getFileUrl(url?: string | null) {
   if (!url) return "";
 
-  if (url.startsWith("http://") || url.startsWith("https://")) {
+  // Already-absolute URLs, inline base64 images and blob previews must be
+  // returned untouched — prefixing these with API_URL would break them.
+  // Everything else is a relative path returned by the upload endpoint
+  // (e.g. "/uploads/products/xxx.jpg") and must be resolved against the
+  // backend's own origin, not the frontend's, or the browser tries to load
+  // it from the Next.js server and gets a 404 (this was why uploaded
+  // brand/product/media images never showed up on the site or in admin).
+  if (
+    url.startsWith("http://") ||
+    url.startsWith("https://") ||
+    url.startsWith("data:") ||
+    url.startsWith("blob:")
+  ) {
     return url;
   }
 

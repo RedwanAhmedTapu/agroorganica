@@ -24,7 +24,7 @@ export async function updateContent(req: Request, res: Response) {
   const doc = await getOrCreateContent();
   const body = req.body || {};
 
-  const allowedKeys = ["siteSettings", "home", "companyProfile", "brandsProducts", "investorRelation", "media", "messages"];
+  const allowedKeys = ["siteSettings", "home", "companyProfile", "brandsProducts", "investorRelation", "media", "contactPage", "messages"];
   for (const key of allowedKeys) {
     if (body[key] !== undefined) {
       (doc as any)[key] = body[key];

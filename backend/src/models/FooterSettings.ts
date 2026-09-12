@@ -14,9 +14,16 @@ export interface ISocialLink {
 
 export interface IFooterSettings extends Document {
   socialLinks: ISocialLink[];
+  certifications: string[];
+  productBrochureUrl: string;
   updatedAt: Date;
 }
 
+// NOTE: The footer's "Quick Links" / "Investors" / "Media" columns are NOT
+// stored here. They're generated on the frontend directly from the Company
+// Profile tabs, Investor Relation items and Media galleries (the same data
+// that drives the navbar dropdowns), so editing those pages automatically
+// keeps the footer in sync — nothing to duplicate or maintain separately.
 const SocialLinkSchema = new Schema<ISocialLink>(
   {
     id: { type: String, required: true },
@@ -32,6 +39,8 @@ const SocialLinkSchema = new Schema<ISocialLink>(
 const FooterSettingsSchema = new Schema<IFooterSettings>(
   {
     socialLinks: { type: [SocialLinkSchema], default: [] },
+    certifications: { type: [String], default: [] },
+    productBrochureUrl: { type: String, default: "" },
   },
   { timestamps: { createdAt: false, updatedAt: true } }
 );

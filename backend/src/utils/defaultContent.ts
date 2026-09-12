@@ -23,6 +23,9 @@ export function defaultSiteContent() {
       contactAddress: "Elephant Road, Dhaka, Bangladesh",
       contactPhone: "+880 1XXX-XXXXXX",
       contactEmail: "info@agroorganica.com",
+      contactWebsite: "",
+      onlineShopLabel: "Online Shop",
+      onlineShopUrl: "",
     },
     home: {
       grid: {
@@ -117,6 +120,11 @@ export function defaultSiteContent() {
           images: [placeholder("05", "#b98fc9"), placeholder("06", "#c96b3d")],
         },
       ],
+    },
+    contactPage: {
+      heading: "Contact Us",
+      intro: "Fill up the form and our team will get back to you within 24 hours.",
+      formHeading: "For Further Query",
     },
     messages: [],
   };

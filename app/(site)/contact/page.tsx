@@ -1,11 +1,15 @@
 "use client";
 
 import { useState } from "react";
+import { useAppData } from "@/lib/DataContext";
 import { Card, Field, Btn, inputCls, inputStyle, C } from "@/components/ui";
 import { submitContactMessage, ApiError } from "@/lib/api";
 import { Phone, Mail, MapPin, Send, Check, AlertCircle, Loader2 } from "lucide-react";
 
 export default function ContactPage() {
+  const { data } = useAppData();
+  const s = data.siteSettings;
+  const cp = data.contactPage;
   const [form, setForm] = useState({ firstName: "", lastName: "", email: "", phone: "", message: "" });
   const [sent, setSent] = useState(false);
   const [sending, setSending] = useState(false);
@@ -38,25 +42,31 @@ export default function ContactPage() {
       <div className="grid md:grid-cols-[280px_1fr] gap-6">
         <Card className="p-6">
           <h3 className="font-serif text-xl mb-2" style={{ color: C.primary }}>
-            Contact Us
+            {cp?.heading || "Contact Us"}
           </h3>
           <p className="text-xs mb-5" style={{ color: C.muted }}>
-            Fill up the form and our team will get back to you within 24 hours.
+            {cp?.intro || "Fill up the form and our team will get back to you within 24 hours."}
           </p>
-          <div className="flex items-start gap-2 mb-3 text-sm" style={{ color: C.text }}>
-            <Phone size={15} style={{ color: C.primary }} className="mt-0.5" /> +880-2-963-4753
-          </div>
-          <div className="flex items-start gap-2 mb-3 text-sm" style={{ color: C.text }}>
-            <Mail size={15} style={{ color: C.primary }} className="mt-0.5" /> info@agroorganica.com.bd
-          </div>
-          <div className="flex items-start gap-2 text-sm" style={{ color: C.text }}>
-            <MapPin size={15} style={{ color: C.primary }} className="mt-0.5" /> Suite #301, 65 Elephant Road, Dhaka-1205
-          </div>
+          {s?.contactPhone && (
+            <div className="flex items-start gap-2 mb-3 text-sm" style={{ color: C.text }}>
+              <Phone size={15} style={{ color: C.primary }} className="mt-0.5 shrink-0" /> {s.contactPhone}
+            </div>
+          )}
+          {s?.contactEmail && (
+            <div className="flex items-start gap-2 mb-3 text-sm break-words" style={{ color: C.text }}>
+              <Mail size={15} style={{ color: C.primary }} className="mt-0.5 shrink-0" /> {s.contactEmail}
+            </div>
+          )}
+          {s?.contactAddress && (
+            <div className="flex items-start gap-2 text-sm" style={{ color: C.text }}>
+              <MapPin size={15} style={{ color: C.primary }} className="mt-0.5 shrink-0" /> {s.contactAddress}
+            </div>
+          )}
         </Card>
 
         <Card className="p-6">
           <h3 className="font-serif text-xl mb-5" style={{ color: C.primary }}>
-            For Further Query
+            {cp?.formHeading || "For Further Query"}
           </h3>
           <form onSubmit={submit}>
             <div className="grid sm:grid-cols-2 gap-x-4">

@@ -20,6 +20,9 @@ export interface ISiteContent extends Document {
     contactAddress: string;
     contactPhone: string;
     contactEmail: string;
+    contactWebsite: string;
+    onlineShopLabel: string;
+    onlineShopUrl: string;
   };
   home: {
     grid: {
@@ -32,6 +35,11 @@ export interface ISiteContent extends Document {
   brandsProducts: { categories: any[] };
   investorRelation: { items: any[] };
   media: { sections: any[] };
+  contactPage: {
+    heading: string;
+    intro: string;
+    formHeading: string;
+  };
   messages: any[];
   updatedAt: Date;
 }
@@ -49,6 +57,9 @@ const SiteContentSchema = new Schema<ISiteContent>(
       contactAddress: { type: String, default: "" },
       contactPhone: { type: String, default: "" },
       contactEmail: { type: String, default: "" },
+      contactWebsite: { type: String, default: "" },
+      onlineShopLabel: { type: String, default: "Online Shop" },
+      onlineShopUrl: { type: String, default: "" },
     },
     home: {
       grid: {
@@ -68,6 +79,11 @@ const SiteContentSchema = new Schema<ISiteContent>(
     },
     media: {
       sections: mixedArray,
+    },
+    contactPage: {
+      heading: { type: String, default: "Contact Us" },
+      intro: { type: String, default: "Fill up the form and our team will get back to you within 24 hours." },
+      formHeading: { type: String, default: "For Further Query" },
     },
     messages: mixedArray,
   },

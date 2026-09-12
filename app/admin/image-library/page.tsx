@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Card, Btn, C, inputCls, inputStyle } from "@/components/ui";
 import AdminHint from "@/components/AdminHint";
 import { UploadBtn } from "@/components/ui";
-import { listAssets, bulkDeleteUploads, Asset, UploadUsage } from "@/lib/api";
+import { listAssets, bulkDeleteUploads, getFileUrl, Asset, UploadUsage } from "@/lib/api";
 import { UPLOAD_HINTS } from "@/lib/uploadPresets";
 import { Copy, Check, Trash2, RefreshCw, Loader2 } from "lucide-react";
 
@@ -170,7 +170,7 @@ export default function ImageLibraryPage() {
                 onClick={() => toggleSelected(a.id)}
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={a.url} alt={a.originalName} className="w-full aspect-square object-cover" />
+                <img src={getFileUrl(a.url)} alt={a.originalName} className="w-full aspect-square object-cover" />
                 <input
                   type="checkbox"
                   checked={selected.has(a.id)}

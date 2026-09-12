@@ -86,9 +86,31 @@ export type SiteSettings = {
   companySubtitle: string;
   footerDescription: string;
   ourBrandText: string;
+  /** Shown in both the footer's Address column and the Contact page. */
   contactAddress: string;
+  /** Shown in both the footer's Address column and the Contact page. */
   contactPhone: string;
+  /** Shown in both the footer's Address column and the Contact page. */
   contactEmail: string;
+  /** Shown in the footer's Address column next to phone/email. Optional. */
+  contactWebsite: string;
+  /** Label for the pill button in the navbar, e.g. "Online Shop". */
+  onlineShopLabel: string;
+  /**
+   * Destination for the navbar button — can be an outside/external site
+   * (e.g. a marketplace or a separate shop domain) or an internal path.
+   * When empty, the button is hidden from the navbar entirely.
+   */
+  onlineShopUrl: string;
+};
+
+// The Contact page's own wording. Its phone/email/address come straight
+// from SiteSettings above (same values shown in the footer) so there's one
+// place to update them; this type only covers what's specific to that page.
+export type ContactPageContent = {
+  heading: string;
+  intro: string;
+  formHeading: string;
 };
 
 export type AppData = {
@@ -98,5 +120,6 @@ export type AppData = {
   brandsProducts: { categories: Category[] };
   investorRelation: { items: InvestorItem[] };
   media: { sections: MediaSection[] };
+  contactPage: ContactPageContent;
   messages: Message[];
 };

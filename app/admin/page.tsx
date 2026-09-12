@@ -13,6 +13,7 @@ import {
   Images,
   MessageSquare,
   FolderOpen,
+  Tags,
   ArrowRight,
 } from "lucide-react";
 
@@ -34,7 +35,13 @@ export default function AdminDashboard() {
       href: "/admin/home",
       icon: GalleryHorizontalEnd,
       title: "Home Page",
-      desc: `${gridFilled}/5 media in "${getTemplate(data.home.grid.templateId).name}" · ${activeBrands} active brand${activeBrands === 1 ? "" : "s"}`,
+      desc: `${gridFilled}/5 media in "${getTemplate(data.home.grid.templateId).name}"`,
+    },
+    {
+      href: "/admin/brands",
+      icon: Tags,
+      title: "Brand Slider",
+      desc: `${activeBrands} active brand${activeBrands === 1 ? "" : "s"} · ${data.home.brands.length} total`,
     },
     {
       href: "/admin/company-profile",
@@ -93,8 +100,8 @@ export default function AdminDashboard() {
         <strong>How this works:</strong> each card below is one section of the public site. Open a
         section, add or edit content, and it goes live immediately — there's no separate "publish"
         step. Adding lots of products or brands at once? Open <strong>Image Library</strong> to
-        upload photos and grab their URLs, then use "Bulk Add" on the Brands & Products or Home Page
-        section to import them from an Excel sheet. Use <strong>Settings</strong> to change your
+        upload photos and grab their URLs, then use "Bulk Add" on the Brands & Products or Brand
+        Slider section to import them from an Excel sheet. Use <strong>Settings</strong> to change your
         password, manage the navbar logo and footer social links, and see login history.
       </AdminHint>
 

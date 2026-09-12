@@ -17,13 +17,15 @@ import {
   LogOut,
   Loader2,
   FolderOpen,
+  Tags,
 } from "lucide-react";
 import { C } from "@/components/ui";
 import { useAuth } from "@/lib/AuthContext";
 
 const ADMIN_TABS = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
-  { href: "/admin/home", label: "Home Page", icon: GalleryHorizontalEnd },
+  { href: "/admin/home", label: "Home Page Grid", icon: GalleryHorizontalEnd },
+  { href: "/admin/brands", label: "Brand Slider", icon: Tags },
   { href: "/admin/company-profile", label: "Company Profile", icon: Building2 },
   { href: "/admin/brands-products", label: "Brands & Products", icon: Package },
   { href: "/admin/investor-relation", label: "Investor Relation", icon: LineChart },

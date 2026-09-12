@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Trash2, Plus } from "lucide-react";
 import { UploadBtn, Btn, inputCls, inputStyle, C } from "./ui";
+import { getFileUrl } from "@/lib/api";
 import { uid } from "@/lib/helpers";
 import { CompanyProfileTab, ProfileItem, AchievementItem } from "@/lib/types";
 
@@ -38,7 +39,7 @@ export function ProfileAchievementEditor({
         {tab.items.map((it: any) => (
           <div key={it.id} className="rounded-lg overflow-hidden relative" style={{ border: `1px solid ${C.border}` }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={it.image} className="w-full aspect-square object-cover" alt="" />
+            <img src={getFileUrl(it.image)} className="w-full aspect-square object-cover" alt="" />
             <div className="p-2">
               <div className="text-xs font-semibold truncate" style={{ color: C.text }}>
                 {isProfile ? it.name : it.title}
@@ -91,7 +92,7 @@ export function ProfileAchievementEditor({
           />
           {image && (
             /* eslint-disable-next-line @next/next/no-img-element */
-            <img src={image} className="w-9 h-9 rounded object-cover" alt="" />
+            <img src={getFileUrl(image)} className="w-9 h-9 rounded object-cover" alt="" />
           )}
           <Btn size="sm" onClick={submit}>
             <Plus size={14} /> Add

@@ -1,14 +1,39 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { useAppData } from "@/lib/DataContext";
 import { SecondaryNav } from "@/components/SecondaryNav";
 import { Card, C } from "@/components/ui";
+import { getFileUrl } from "@/lib/api";
 
+// useSearchParams() needs a Suspense boundary in the app router, so the page
+// component below just wraps the real content that reads `?tab=`.
 export default function CompanyProfilePage() {
+  return (
+    <Suspense fallback={null}>
+      <CompanyProfileContent />
+    </Suspense>
+  );
+}
+
+function CompanyProfileContent() {
   const { data } = useAppData();
   const tabs = data.companyProfile.tabs;
-  const [activeId, setActiveId] = useState<string | undefined>(tabs[0]?.id);
+  const searchParams = useSearchParams();
+  const requestedTab = searchParams.get("tab");
+  const [activeId, setActiveId] = useState<string | undefined>(requestedTab || tabs[0]?.id);
+
+  // Keep in sync with the navbar dropdown — e.g. picking "Board of
+  // Directors" there links to /company-profile?tab=board, which should
+  // land straight on that tab even if this page was already open.
+  useEffect(() => {
+    if (requestedTab && tabs.some((t) => t.id === requestedTab)) {
+      setActiveId(requestedTab);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [requestedTab]);
+
   const tab = tabs.find((t) => t.id === activeId) || tabs[0];
 
   return (
@@ -39,7 +64,7 @@ export default function CompanyProfilePage() {
               {tab.items.map((p) => (
                 <Card key={p.id} className="overflow-hidden">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={p.image} alt={p.name} className="w-full aspect-square object-cover" />
+                  <img src={getFileUrl(p.image)} alt={p.name} className="w-full aspect-square object-cover" />
                   <div className="p-3 text-center">
                     <div className="text-sm font-semibold" style={{ color: C.primary }}>
                       {p.name}
@@ -63,7 +88,7 @@ export default function CompanyProfilePage() {
               {tab.items.map((a) => (
                 <Card key={a.id} className="overflow-hidden">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={a.image} alt={a.title} className="w-full aspect-[4/3] object-cover" />
+                  <img src={getFileUrl(a.image)} alt={a.title} className="w-full aspect-[4/3] object-cover" />
                   <div className="p-3">
                     <div className="text-sm font-medium" style={{ color: C.text }}>
                       {a.title}

@@ -7,7 +7,7 @@ import AdminHint from "@/components/AdminHint";
 import { uid } from "@/lib/helpers";
 import { Plus, Trash2, CheckSquare, Square, X } from "lucide-react";
 import { MediaSection } from "@/lib/types";
-import { bulkDeleteUploads } from "@/lib/api";
+import { bulkDeleteUploads, getFileUrl } from "@/lib/api";
 
 export default function AdminMediaPage() {
   const { data, setData } = useAppData();
@@ -147,7 +147,7 @@ export default function AdminMediaPage() {
                   onClick={() => selectMode && toggleSelected(i)}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={img} className="w-full aspect-square object-cover" alt="" />
+                  <img src={getFileUrl(img)} className="w-full aspect-square object-cover" alt="" />
                   {selectMode ? (
                     <div
                       className="absolute top-1 right-1 w-5 h-5 rounded flex items-center justify-center"

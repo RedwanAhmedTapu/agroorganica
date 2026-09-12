@@ -1,6 +1,7 @@
 "use client";
 
 import { Brand } from "@/lib/types";
+import { getFileUrl } from "@/lib/api";
 import { C } from "./ui";
 
 export default function BrandSlider({ brands }: { brands: Brand[] }) {
@@ -28,7 +29,7 @@ export default function BrandSlider({ brands }: { brands: Brand[] }) {
             className="shrink-0 h-14 w-20 sm:h-16 sm:w-36 md:h-20 md:w-64 flex items-center justify-center grayscale hover:grayscale-0 opacity-70 hover:opacity-100 transition-all"
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={b.image} alt={b.name} title={b.name} className="max-h-9 sm:max-h-11 md:max-h-14 max-w-full object-contain" />
+            <img src={getFileUrl(b.image)} alt={b.name} title={b.name} className="max-h-9 sm:max-h-11 md:max-h-14 max-w-full object-contain" />
           </div>
         ))}
       </div>

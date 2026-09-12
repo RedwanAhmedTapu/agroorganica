@@ -2,6 +2,7 @@
 
 import { HomeGridItem } from "@/lib/types";
 import { getTemplate } from "@/lib/homeTemplates";
+import { getFileUrl } from "@/lib/api";
 import { C } from "./ui";
 
 export default function HomeMediaGrid({
@@ -53,7 +54,7 @@ export default function HomeMediaGrid({
           >
             {item.type === "video" ? (
               <video
-                src={item.src}
+                src={getFileUrl(item.src)}
                 className="w-full h-full object-cover"
                 autoPlay
                 muted
@@ -63,7 +64,7 @@ export default function HomeMediaGrid({
             ) : (
               // eslint-disable-next-line @next/next/no-img-element
               <img
-                src={item.src}
+                src={getFileUrl(item.src)}
                 alt=""
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
               />

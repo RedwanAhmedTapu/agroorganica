@@ -6,7 +6,7 @@ import { TwoPane, Card, Btn, UploadBtn, inputCls, inputStyle, C } from "@/compon
 import { uid, placeholder } from "@/lib/helpers";
 import { Plus, Trash2 } from "lucide-react";
 import { Category } from "@/lib/types";
-import { bulkDeleteUploads } from "@/lib/api";
+import { bulkDeleteUploads, getFileUrl } from "@/lib/api";
 import { BulkImportExcel, BulkImportResult } from "@/components/BulkImportExcel";
 import AdminHint from "@/components/AdminHint";
 
@@ -153,7 +153,7 @@ export default function AdminBrandsPage() {
                 {cat.products.map((p) => (
                   <div key={p.id} className="rounded-lg overflow-hidden relative" style={{ border: `1px solid ${C.border}` }}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={p.image} className="w-full aspect-square object-cover" alt="" />
+                    <img src={getFileUrl(p.image)} className="w-full aspect-square object-cover" alt="" />
                     <div className="p-2 text-xs font-semibold truncate" style={{ color: C.text }}>
                       {p.name}
                     </div>
@@ -176,7 +176,7 @@ export default function AdminBrandsPage() {
                   <UploadBtn small usage="product" label={pImage ? "Change image" : "Upload image"} onFiles={(f) => setPImage(f[0]?.dataUrl)} />
                   {pImage && (
                     /* eslint-disable-next-line @next/next/no-img-element */
-                    <img src={pImage} className="w-9 h-9 rounded object-cover" alt="" />
+                    <img src={getFileUrl(pImage)} className="w-9 h-9 rounded object-cover" alt="" />
                   )}
                   <Btn size="sm" onClick={addProduct}>
                     <Plus size={14} /> Add

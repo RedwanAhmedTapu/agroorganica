@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { useAppData } from "@/lib/DataContext";
 import { SecondaryNav } from "@/components/SecondaryNav";
 import { C } from "@/components/ui";
@@ -8,9 +9,29 @@ import { FileText } from "lucide-react";
 import { getFileUrl } from "@/lib/api";
 
 export default function InvestorRelationPage() {
+  return (
+    <Suspense fallback={null}>
+      <InvestorRelationContent />
+    </Suspense>
+  );
+}
+
+function InvestorRelationContent() {
   const { data } = useAppData();
   const items = data.investorRelation.items;
-  const [activeId, setActiveId] = useState<string | undefined>(items[0]?.id);
+  const searchParams = useSearchParams();
+  const requestedItem = searchParams.get("item");
+  const [activeId, setActiveId] = useState<string | undefined>(requestedItem || items[0]?.id);
+
+  // Keep in sync with the navbar dropdown — picking an item there links to
+  // /investor-relation?item=<id> and should land straight on it.
+  useEffect(() => {
+    if (requestedItem && items.some((i) => i.id === requestedItem)) {
+      setActiveId(requestedItem);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [requestedItem]);
+
   const item = items.find((i) => i.id === activeId) || items[0];
 
   return (

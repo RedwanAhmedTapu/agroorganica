@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import { Upload, Trash2, ChevronLeft, ChevronRight, Loader2, AlertCircle } from "lucide-react";
-import { uploadImageFile, uploadPdfFile, ApiError, UploadUsage } from "@/lib/api";
+import { uploadImageFile, uploadPdfFile, ApiError, UploadUsage, getFileUrl } from "@/lib/api";
 import { UPLOAD_HINTS } from "@/lib/uploadPresets";
 
 export const C = {
@@ -239,7 +239,7 @@ export function ImageStrip({ images }: { images: string[] }) {
         {visible.map((src, i) => (
           <div key={start + i} className="rounded-lg overflow-hidden" style={{ border: `1px solid ${C.border}` }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={src} alt="" className="w-full aspect-[4/3] object-cover" />
+            <img src={getFileUrl(src)} alt="" className="w-full aspect-[4/3] object-cover" />
           </div>
         ))}
       </div>

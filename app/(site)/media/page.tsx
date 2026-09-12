@@ -15,7 +15,10 @@ export default function MediaPage() {
         </p>
       )}
       {sections.map((s) => (
-        <div key={s.id}>
+        // The id + scroll-margin let the navbar's "Media ▾" dropdown link
+        // straight to /media#<id> and land on this exact gallery, even
+        // though the fixed header would otherwise cover its heading.
+        <div key={s.id} id={s.id} className="scroll-mt-24">
           <h3 className="font-serif text-2xl mb-4" style={{ color: C.text }}>
             {s.title}
           </h3>
