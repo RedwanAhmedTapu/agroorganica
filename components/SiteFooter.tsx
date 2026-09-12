@@ -187,108 +187,113 @@ export default function SiteFooter() {
   return (
     <footer className="relative" style={{ backgroundColor: C.primary }}>
       <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-10 sm:pt-14 pb-8">
-        {/* Brand strip */}
-        <div className="flex items-center gap-2.5 mb-4">
-          <div className="w-9 h-9 rounded-full flex items-center justify-center bg-white shrink-0 overflow-hidden">
-            {s?.logoUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={getFileUrl(s.logoUrl)} alt={s.companyName || "Logo"} className="w-full h-full object-contain p-1" />
-            ) : (
-              <Leaf size={18} style={{ color: C.primary }} />
-            )}
-          </div>
-          <div className="leading-tight">
-            <div className="text-orange-600 font-serif font-semibold text-sm tracking-wide">
-              {s?.companyName || "Agro Organica"}
-            </div>
-           
-          </div>
-        </div>
-        {s?.footerDescription && (
-          <p className="text-sm leading-relaxed max-w-2xl mb-8 sm:mb-10" style={{ color: "#ecf3ec" }}>
-            {s.footerDescription}
-          </p>
-        )}
-
-        <div className="grid gap-6 sm:gap-10 grid-cols-1 sm:grid-cols-2 md:grid-cols-[auto_1fr_1fr_1fr_1.2fr]">
-          {/* Certification badges — plain list, not a dropdown (there's
-              nothing to navigate, just badges to glance at) */}
-          {certifications.length > 0 && (
-            <div className="flex sm:flex-col flex-wrap gap-2 sm:gap-2 col-span-1 sm:col-span-2 md:col-span-1 min-w-0">
-              {certifications.map((c, i) => (
-                <div
-                  key={i}
-                  className="text-center text-xs font-semibold uppercase tracking-wide px-4 py-1.5 rounded break-words"
-                  style={{ border: "1px solid rgba(255,255,255,0.35)", color: "#fff" }}
-                >
-                  {c}
+        {/* Brand block: logo/name/subtitle, description, and the
+            certification badges directly underneath — all as one column
+            on the left. */}
+        <div className="grid gap-8 md:gap-10 md:grid-cols-[280px_1fr]">
+          <div className="min-w-0">
+            <div className="flex items-center gap-2.5 mb-4">
+              <div className="w-9 h-9 rounded-full flex items-center justify-center bg-white shrink-0 overflow-hidden">
+                {s?.logoUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={getFileUrl(s.logoUrl)} alt={s.companyName || "Logo"} className="w-full h-full object-contain p-1" />
+                ) : (
+                  <Leaf size={18} style={{ color: C.primary }} />
+                )}
+              </div>
+              <div className="leading-tight">
+                <div className="text-orange-600 font-serif font-semibold text-sm tracking-wide">
+                  {s?.companyName || "Agro Organica"}
                 </div>
-              ))}
-              <div className="text-[11px] font-semibold mt-1 basis-full sm:basis-auto" style={{ color: "#ecf3ec" }}>
-                Certified Company
+                <div className="text-[10px] uppercase tracking-widest" style={{ color: "#ecf3ec" }}>
+                  {s?.companySubtitle || "Nurture Nature"}
+                </div>
               </div>
             </div>
-          )}
+            {s?.footerDescription && (
+              <p className="text-sm leading-relaxed mb-6" style={{ color: "#ecf3ec" }}>
+                {s.footerDescription}
+              </p>
+            )}
 
-          {/* Quick Links / Investors / Media — auto-derived (see `columns`
-              above). Column headings stay plain; only entries with their
-              own sub-content (board/achievement members, investor PDFs)
-              get a dropdown. */}
-          {columns.map((col) => (
-            <FooterColumnBlock key={col.id} col={col} />
-          ))}
-
-          {/* Address — always its own column, full width on mobile */}
-          <div className="col-span-1 sm:col-span-2 md:col-span-1 min-w-0">
-            <div className="text-orange-600 text-xs font-semibold uppercase tracking-widest mb-4">Address</div>
-            <ul className="flex flex-col gap-3 min-w-0">
-              {s?.contactAddress && (
-                <li className="flex items-start gap-2.5 text-sm min-w-0" style={{ color: "#ecf3ec" }}>
-                  <MapPin size={15} className="mt-0.5 shrink-0" style={{ color: C.gold }} />
-                  <span className="break-words min-w-0">{s.contactAddress}</span>
-                </li>
-              )}
-              {s?.contactPhone && (
-                <li className="flex items-center gap-2.5 text-sm min-w-0" style={{ color: "#ecf3ec" }}>
-                  <Phone size={15} className="shrink-0" style={{ color: C.gold }} />
-                  <span className="break-words min-w-0">{s.contactPhone}</span>
-                </li>
-              )}
-              {s?.contactEmail && (
-                <li className="flex items-start gap-2.5 text-sm min-w-0" style={{ color: "#ecf3ec" }}>
-                  <Mail size={15} className="mt-0.5 shrink-0" style={{ color: C.gold }} />
-                  <span className="break-words min-w-0" style={{ overflowWrap: "anywhere" }}>
-                    {s.contactEmail}
-                  </span>
-                </li>
-              )}
-              {s?.contactWebsite && (
-                <li className="flex items-start gap-2.5 text-sm min-w-0" style={{ color: "#ecf3ec" }}>
-                  <Globe size={15} className="mt-0.5 shrink-0" style={{ color: C.gold }} />
-                  <span className="break-words min-w-0" style={{ overflowWrap: "anywhere" }}>
-                    {s.contactWebsite}
-                  </span>
-                </li>
-              )}
-            </ul>
-
-            {socialLinks.length > 0 && (
-              <div className="flex items-center gap-2 mt-5 flex-wrap">
-                {socialLinks.map((link) => (
-                  <a
-                    key={link.id}
-                    href={link.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={link.platform}
-                    className="w-9 h-9 rounded-full flex items-center justify-center transition-colors hover:bg-white/30"
-                    style={{ backgroundColor: "rgba(255,255,255,0.15)" }}
+            {/* Certification badges — sit directly under the logo/name/
+                description, not as their own grid column. */}
+            {certifications.length > 0 && (
+              <div className="flex flex-col gap-2">
+                {certifications.map((c, i) => (
+                  <div
+                    key={i}
+                    className="text-center text-xs font-semibold uppercase tracking-wide px-4 py-1.5 rounded break-words"
+                    style={{ border: "1px solid rgba(255,255,255,0.35)", color: "#fff" }}
                   >
-                    <SocialIcon name={link.icon} color={link.color || undefined} />
-                  </a>
+                    {c}
+                  </div>
                 ))}
+                <div className="text-[11px] font-semibold basis-full mt-1" style={{ color: "#ecf3ec" }}>
+                  Certified Company
+                </div>
               </div>
             )}
+          </div>
+
+          {/* Quick Links / Investors / Media / Address — all inline with
+              the brand block above, side by side on the same row. */}
+          <div className="grid gap-6 sm:gap-8 grid-cols-2 sm:grid-cols-4 min-w-0">
+            {columns.map((col) => (
+              <FooterColumnBlock key={col.id} col={col} />
+            ))}
+
+            <div className="col-span-2 sm:col-span-1 min-w-0">
+              <div className="text-orange-600 text-xs font-semibold uppercase tracking-widest mb-4">Address</div>
+              <ul className="flex flex-col gap-3 min-w-0">
+                {s?.contactAddress && (
+                  <li className="flex items-start gap-2.5 text-sm min-w-0" style={{ color: "#ecf3ec" }}>
+                    <MapPin size={15} className="mt-0.5 shrink-0" style={{ color: C.gold }} />
+                    <span className="break-words min-w-0">{s.contactAddress}</span>
+                  </li>
+                )}
+                {s?.contactPhone && (
+                  <li className="flex items-center gap-2.5 text-sm min-w-0" style={{ color: "#ecf3ec" }}>
+                    <Phone size={15} className="shrink-0" style={{ color: C.gold }} />
+                    <span className="break-words min-w-0">{s.contactPhone}</span>
+                  </li>
+                )}
+                {s?.contactEmail && (
+                  <li className="flex items-start gap-2.5 text-sm min-w-0" style={{ color: "#ecf3ec" }}>
+                    <Mail size={15} className="mt-0.5 shrink-0" style={{ color: C.gold }} />
+                    <span className="break-words min-w-0" style={{ overflowWrap: "anywhere" }}>
+                      {s.contactEmail}
+                    </span>
+                  </li>
+                )}
+                {s?.contactWebsite && (
+                  <li className="flex items-start gap-2.5 text-sm min-w-0" style={{ color: "#ecf3ec" }}>
+                    <Globe size={15} className="mt-0.5 shrink-0" style={{ color: C.gold }} />
+                    <span className="break-words min-w-0" style={{ overflowWrap: "anywhere" }}>
+                      {s.contactWebsite}
+                    </span>
+                  </li>
+                )}
+              </ul>
+
+              {socialLinks.length > 0 && (
+                <div className="flex items-center gap-2 mt-5 flex-wrap">
+                  {socialLinks.map((link) => (
+                    <a
+                      key={link.id}
+                      href={link.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={link.platform}
+                      className="w-9 h-9 rounded-full flex items-center justify-center transition-colors hover:bg-white/30"
+                      style={{ backgroundColor: "rgba(255,255,255,0.15)" }}
+                    >
+                      <SocialIcon name={link.icon} color={link.color || undefined} />
+                    </a>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
