@@ -4,6 +4,7 @@ import { createContext, useCallback, useContext, useEffect, useRef, useState } f
 import { AppData } from "./types";
 import { makeSeedData } from "./seed";
 import { getContent, saveContent, ApiError } from "./api";
+import { normalizeProductNodes } from "./helpers";
 
 type Ctx = {
   data: AppData;
@@ -29,8 +30,22 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const load = useCallback(async () => {
     try {
       const fresh = await getContent();
+      // Data saved by an older version of the app may have `products`
+      // instead of `children` on product nodes, or be missing
+      // `partnerBrands` entirely — patch both up so every page can rely
+      // on the current shape without extra null-checks.
+      const patched: AppData = {
+        ...fresh,
+        home: {
+          ...fresh.home,
+          partnerBrands: Array.isArray(fresh.home?.partnerBrands) ? fresh.home.partnerBrands : [],
+        },
+        brandsProducts: {
+          categories: normalizeProductNodes(fresh.brandsProducts?.categories),
+        },
+      };
       skipNextSave.current = true;
-      setData(fresh);
+      setData(patched);
     } catch (e) {
       console.error("Could not load site content from the API", e);
     } finally {

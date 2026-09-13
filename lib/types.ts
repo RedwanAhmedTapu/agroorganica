@@ -20,6 +20,10 @@ export type Brand = {
 export type HomeData = {
   grid: HomeGrid;
   brands: Brand[];
+  /** Second homepage logo strip ("Our Brand Partners") — same shape as
+   * `brands` above, scrolls as a two-row marquee instead of the single
+   * strip used for `brands`. */
+  partnerBrands: Brand[];
 };
 
 export type ProfileItem = {
@@ -40,16 +44,16 @@ export type CompanyProfileTab =
   | { id: string; name: string; type: "profile"; items: ProfileItem[] }
   | { id: string; name: string; type: "achievement"; items: AchievementItem[] };
 
-export type Product = {
+// Brands & Products is a tree of unlimited depth — admin can nest a
+// category inside a category inside a category, as many levels as they
+// want (e.g. Dairy -> Milk Added Drink -> Flavoured Milk -> Mango Milk).
+// A node with `children` is browsed like a folder; a node with an empty
+// `children` array is a leaf and is shown as a plain product card.
+export type ProductNode = {
   id: string;
   name: string;
   image: string;
-};
-
-export type Category = {
-  id: string;
-  name: string;
-  products: Product[];
+  children: ProductNode[];
 };
 
 export type Pdf = {
@@ -117,7 +121,7 @@ export type AppData = {
   siteSettings: SiteSettings;
   home: HomeData;
   companyProfile: { tabs: CompanyProfileTab[] };
-  brandsProducts: { categories: Category[] };
+  brandsProducts: { categories: ProductNode[] };
   investorRelation: { items: InvestorItem[] };
   media: { sections: MediaSection[] };
   contactPage: ContactPageContent;

@@ -41,6 +41,7 @@ import {
 } from "@/lib/api";
 import { UploadBtn } from "@/components/ui";
 import AdminHint from "@/components/AdminHint";
+import { collectNodeImages } from "@/lib/helpers";
 
 type ChangeStep = "form" | "otp";
 type SettingsTab = "branding" | "contactPage" | "footer" | "security" | "danger";
@@ -281,13 +282,13 @@ export default function AdminSettingsPage() {
 
   const clearAllProducts = () =>
     clearSection(
-      "products (categories are kept)",
+      "products (root categories are kept, everything nested under them is removed)",
       () =>
         setData((d) => ({
           ...d,
-          brandsProducts: { categories: d.brandsProducts.categories.map((c) => ({ ...c, products: [] })) },
+          brandsProducts: { categories: d.brandsProducts.categories.map((c) => ({ ...c, children: [] })) },
         })),
-      data.brandsProducts.categories.flatMap((c) => c.products.map((p) => p.image))
+      data.brandsProducts.categories.flatMap((c) => collectNodeImages(c.children))
     );
 
   const clearAllMedia = () =>
@@ -612,11 +613,11 @@ export default function AdminSettingsPage() {
               <strong>Investors</strong> and <strong>Media</strong> columns aren't edited here — they're
               generated automatically from{" "}
               <a href="/admin/company-profile" className="underline" style={{ color: C.primary }}>
-                Company Profile
+                About Us
               </a>
               ,{" "}
               <a href="/admin/investor-relation" className="underline" style={{ color: C.primary }}>
-                Investor Relation
+                Investors
               </a>{" "}
               and{" "}
               <a href="/admin/media" className="underline" style={{ color: C.primary }}>

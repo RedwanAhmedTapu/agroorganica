@@ -6,7 +6,7 @@ import { TwoPane, Card, Btn, inputCls, inputStyle, C } from "@/components/ui";
 import { ProfileAchievementEditor } from "@/components/ProfileAchievementEditor";
 import AdminHint from "@/components/AdminHint";
 import { uid } from "@/lib/helpers";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, ChevronUp, ChevronDown } from "lucide-react";
 import { CompanyProfileTab } from "@/lib/types";
 
 export default function AdminCompanyProfilePage() {
@@ -40,6 +40,21 @@ export default function AdminCompanyProfilePage() {
   };
 
   const renameTab = (id: string, name: string) => update((tabs) => tabs.map((t) => (t.id === id ? { ...t, name } : t)));
+
+  // Order here is the single source of truth for tab order everywhere —
+  // this admin list, the "About Us ▾" navbar dropdown, and the tab strip
+  // on the public /company-profile page all just map over this same
+  // array, so reordering it here reorders it everywhere at once.
+  const moveTab = (id: string, dir: -1 | 1) =>
+    update((tabs) => {
+      const idx = tabs.findIndex((t) => t.id === id);
+      const target = idx + dir;
+      if (idx === -1 || target < 0 || target >= tabs.length) return tabs;
+      const next = [...tabs];
+      [next[idx], next[target]] = [next[target], next[idx]];
+      return next;
+    });
+
   const setContent = (id: string, content: string) =>
     update((tabs) => tabs.map((t) => (t.id === id && t.type === "text" ? { ...t, content } : t)));
 
@@ -53,26 +68,49 @@ export default function AdminCompanyProfilePage() {
   return (
     <>
       <AdminHint>
-        Create one tab per section of your Company Profile page. <strong>Text</strong> tabs are for
+        Create one tab per section of your About Us page. <strong>Text</strong> tabs are for
         long-form writing (About Us, History, etc). <strong>Profile</strong> tabs list people with a
         photo, name and designation (Board of Directors, KMP). <strong>Achievement</strong> tabs
-        list a photo + title (awards, milestones). Click a tab on the left to edit it.
+        list a photo + title (awards, milestones). Click a tab on the left to edit it, or use the
+        arrows to reorder the tabs — the order here is also the order shown in the navbar dropdown
+        and on the site.
       </AdminHint>
       <TwoPane
       left={
         <>
-          {tabs.map((t) => (
-            <button
-              key={t.id}
-              onClick={() => setActiveId(t.id)}
-              className="text-left px-3 py-2 rounded-md text-sm flex items-center justify-between"
-              style={{ backgroundColor: activeId === t.id ? C.primaryTint : "#fff", border: `1px solid ${C.border}`, color: C.text }}
-            >
-              <span>{t.name}</span>
-              <span className="text-[10px] uppercase font-semibold" style={{ color: C.muted }}>
-                {t.type}
-              </span>
-            </button>
+          {tabs.map((t, i) => (
+            <div key={t.id} className="flex items-stretch gap-1">
+              <button
+                onClick={() => setActiveId(t.id)}
+                className="flex-1 min-w-0 text-left px-3 py-2 rounded-md text-sm flex items-center justify-between gap-2"
+                style={{ backgroundColor: activeId === t.id ? C.primaryTint : "#fff", border: `1px solid ${C.border}`, color: C.text }}
+              >
+                <span className="truncate">{t.name}</span>
+                <span className="text-[10px] uppercase font-semibold shrink-0" style={{ color: C.muted }}>
+                  {t.type}
+                </span>
+              </button>
+              <div className="flex flex-col shrink-0 rounded-md overflow-hidden" style={{ border: `1px solid ${C.border}` }}>
+                <button
+                  onClick={() => moveTab(t.id, -1)}
+                  disabled={i === 0}
+                  className="flex-1 px-1.5 flex items-center justify-center disabled:opacity-30"
+                  style={{ backgroundColor: "#fff" }}
+                  title="Move up"
+                >
+                  <ChevronUp size={12} style={{ color: C.muted }} />
+                </button>
+                <button
+                  onClick={() => moveTab(t.id, 1)}
+                  disabled={i === tabs.length - 1}
+                  className="flex-1 px-1.5 flex items-center justify-center disabled:opacity-30"
+                  style={{ backgroundColor: "#fff", borderTop: `1px solid ${C.border}` }}
+                  title="Move down"
+                >
+                  <ChevronDown size={12} style={{ color: C.muted }} />
+                </button>
+              </div>
+            </div>
           ))}
           <Card className="p-3 mt-2">
             <div className="text-xs font-semibold mb-2" style={{ color: C.muted }}>

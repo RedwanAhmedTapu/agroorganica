@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import { useAppData } from "@/lib/DataContext";
-import { Brand } from "@/lib/types";
+import { AppData, Brand } from "@/lib/types";
 import { uid, placeholder } from "@/lib/helpers";
-import { getFileUrl } from "@/lib/api";
+import { getFileUrl, UploadUsage } from "@/lib/api";
 import { Card, Btn, UploadBtn, Toggle, Badge, inputCls, inputStyle, C } from "@/components/ui";
 import { BulkImportExcel, BulkImportResult } from "@/components/BulkImportExcel";
 import AdminHint from "@/components/AdminHint";
@@ -28,30 +28,41 @@ function SectionHeader({ eyebrow, title, hint }: { eyebrow: string; title: strin
   );
 }
 
-// Standalone "Brand Slider" admin page — pulled out of Home Page settings
-// into its own page so brand logos have their own dedicated place to be
-// managed instead of being mixed in with the homepage image/video grid.
-export default function AdminBrandsPage() {
-  const { data, setData } = useAppData();
-  const brands = data.home.brands;
+// Shared editor for any "logo marquee" list on the homepage — used below
+// for both the main "Our Brands" strip and the "Our Brand Partners" strip
+// underneath it. Both are plain Brand[] lists with the same add/toggle/
+// delete/bulk-import behaviour, just pointed at a different field of
+// `home` and a different upload usage/template so uploads land in their
+// own folder and the sample sheet says the right thing.
+function BrandGroupEditor({
+  brands,
+  onChange,
+  usage,
+  bulkTitle,
+  templateFilename,
+}: {
+  brands: Brand[];
+  onChange: (fn: (bs: Brand[]) => Brand[]) => void;
+  usage: UploadUsage;
+  bulkTitle: string;
+  templateFilename: string;
+}) {
   const [name, setName] = useState("");
   const [pendingImage, setPendingImage] = useState<string | null>(null);
 
-  const update = (fn: (bs: Brand[]) => Brand[]) => setData((d) => ({ ...d, home: { ...d.home, brands: fn(d.home.brands) } }));
-
   const addBrand = () => {
     if (!name.trim() || !pendingImage) return;
-    update((bs) => [...bs, { id: uid(), name: name.trim(), image: pendingImage, active: true }]);
+    onChange((bs) => [...bs, { id: uid(), name: name.trim(), image: pendingImage, active: true }]);
     setName("");
     setPendingImage(null);
   };
 
-  const removeBrand = (id: string) => update((bs) => bs.filter((b) => b.id !== id));
-  const toggleActive = (id: string) => update((bs) => bs.map((b) => (b.id === id ? { ...b, active: !b.active } : b)));
+  const removeBrand = (id: string) => onChange((bs) => bs.filter((b) => b.id !== id));
+  const toggleActive = (id: string) => onChange((bs) => bs.map((b) => (b.id === id ? { ...b, active: !b.active } : b)));
 
   const activeCount = brands.filter((b) => b.active).length;
 
-  const handleBulkImportBrands = (rows: Record<string, string>[]): BulkImportResult => {
+  const handleBulkImport = (rows: Record<string, string>[]): BulkImportResult => {
     let added = 0;
     let skipped = 0;
     const newBrands: Brand[] = [];
@@ -71,27 +82,15 @@ export default function AdminBrandsPage() {
       });
       added++;
     }
-    if (newBrands.length) update((bs) => [...bs, ...newBrands]);
+    if (newBrands.length) onChange((bs) => [...bs, ...newBrands]);
     return { added, skipped };
   };
 
   return (
     <div>
-      <SectionHeader
-        eyebrow="Homepage"
-        title="Brand Slider"
-        hint="Add brand logos below. Only brands marked Active appear in the homepage slider."
-      />
-
-      <AdminHint>
-        Add one brand at a time below, or use <strong>Bulk Add Brands</strong> to add many from an
-        Excel sheet. Toggle "Active" to control which brands show in the homepage slider without
-        deleting them.
-      </AdminHint>
-
       <BulkImportExcel
-        title="Bulk Add Brands (Excel)"
-        templateFilename="agro-organica-brands-template.xlsx"
+        title={bulkTitle}
+        templateFilename={templateFilename}
         instructions={
           <>
             Columns: <strong>Brand Name</strong>, <strong>Image URL</strong> (upload the logo in{" "}
@@ -107,12 +106,12 @@ export default function AdminBrandsPage() {
           { key: "imageUrl", label: "Image URL", example: "/uploads/brands/xxxxx.png" },
           { key: "active", label: "Active", example: "Yes" },
         ]}
-        onImport={handleBulkImportBrands}
+        onImport={handleBulkImport}
       />
 
       <Card className="p-5 mb-5 mt-5">
         <div className="text-xs font-semibold mb-3" style={{ color: C.muted }}>
-          Add a brand
+          Add a logo
         </div>
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
           <div
@@ -126,30 +125,30 @@ export default function AdminBrandsPage() {
               <ImageIcon size={18} style={{ color: C.muted }} />
             )}
           </div>
-          <UploadBtn label="Choose logo" usage="brand-logo" onFiles={(files) => files[0] && setPendingImage(files[0].dataUrl)} />
+          <UploadBtn label="Choose logo" usage={usage} onFiles={(files) => files[0] && setPendingImage(files[0].dataUrl)} />
           <input
-            placeholder="Brand name"
+            placeholder="Name"
             value={name}
             onChange={(e) => setName(e.target.value)}
             className={`${inputCls} sm:w-56`}
             style={inputStyle}
           />
           <Btn onClick={addBrand} disabled={!name.trim() || !pendingImage}>
-            <Plus size={14} /> Add brand
+            <Plus size={14} /> Add
           </Btn>
         </div>
       </Card>
 
       <div className="flex items-center gap-2 mb-3">
         <span className="text-xs font-semibold" style={{ color: C.muted }}>
-          {brands.length} brand{brands.length === 1 ? "" : "s"} total
+          {brands.length} total
         </span>
         <Badge>{activeCount} active</Badge>
       </div>
 
       {brands.length === 0 ? (
         <p className="text-sm" style={{ color: C.muted }}>
-          No brands added yet.
+          Nothing added yet.
         </p>
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -177,6 +176,60 @@ export default function AdminBrandsPage() {
           ))}
         </div>
       )}
+    </div>
+  );
+}
+
+// Standalone "Brand Slider" admin page — manages both logo marquees shown
+// on the homepage: the main "Our Brands" strip and the "Our Brand
+// Partners" strip underneath it. Kept on one page since they're the same
+// kind of content, just two separate lists.
+export default function AdminBrandsPage() {
+  const { data, setData } = useAppData();
+
+  const updateField = (field: "brands" | "partnerBrands") => (fn: (bs: Brand[]) => Brand[]) =>
+    setData((d: AppData) => ({ ...d, home: { ...d.home, [field]: fn(d.home[field]) } }));
+
+  return (
+    <div className="flex flex-col gap-10">
+      <div>
+        <SectionHeader
+          eyebrow="Homepage"
+          title="Our Brands"
+          hint="Add brand logos below. Only brands marked Active appear in the homepage slider."
+        />
+        <AdminHint>
+          Add one brand at a time below, or use <strong>Bulk Add Brands</strong> to add many from an
+          Excel sheet. Toggle "Active" to control which brands show in the homepage slider without
+          deleting them.
+        </AdminHint>
+        <BrandGroupEditor
+          brands={data.home.brands}
+          onChange={updateField("brands")}
+          usage="brand-logo"
+          bulkTitle="Bulk Add Brands (Excel)"
+          templateFilename="agro-organica-brands-template.xlsx"
+        />
+      </div>
+
+      <div>
+        <SectionHeader
+          eyebrow="Homepage"
+          title="Our Brand Partners"
+          hint={'Manages the second logo strip on the homepage, just under "Our Brands" — it scrolls the opposite way as its own marquee.'}
+        />
+        <AdminHint>
+          Same as above: only <strong>Active</strong> partners show on the site, and you can bulk-add
+          them from an Excel sheet too.
+        </AdminHint>
+        <BrandGroupEditor
+          brands={data.home.partnerBrands}
+          onChange={updateField("partnerBrands")}
+          usage="brand-logo"
+          bulkTitle="Bulk Add Brand Partners (Excel)"
+          templateFilename="agro-organica-brand-partners-template.xlsx"
+        />
+      </div>
     </div>
   );
 }

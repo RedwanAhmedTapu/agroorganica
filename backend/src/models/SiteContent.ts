@@ -30,6 +30,7 @@ export interface ISiteContent extends Document {
       items: any[];
     };
     brands: any[];
+    partnerBrands: any[];
   };
   companyProfile: { tabs: any[] };
   brandsProducts: { categories: any[] };
@@ -67,6 +68,7 @@ const SiteContentSchema = new Schema<ISiteContent>(
         items: mixedArray,
       },
       brands: mixedArray,
+      partnerBrands: mixedArray,
     },
     companyProfile: {
       tabs: mixedArray,

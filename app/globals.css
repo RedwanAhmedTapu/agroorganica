@@ -28,3 +28,14 @@ body {
 .animate-brand-scroll:hover {
   animation-play-state: paused;
 }
+
+/* Second homepage logo strip ("Our Brand Partners") scrolls the opposite
+   way from the main Brand Slider above it, so the two rows visibly move
+   against each other instead of both drifting the same direction. */
+.animate-brand-scroll-reverse {
+  animation: brand-scroll 28s linear infinite reverse;
+}
+
+.animate-brand-scroll-reverse:hover {
+  animation-play-state: paused;
+}

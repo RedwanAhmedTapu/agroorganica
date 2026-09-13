@@ -5,6 +5,7 @@ import { useAppData } from "@/lib/DataContext";
 import { Card, C, Badge } from "@/components/ui";
 import AdminHint from "@/components/AdminHint";
 import { getTemplate } from "@/lib/homeTemplates";
+import { countLeafProducts } from "@/lib/helpers";
 import {
   GalleryHorizontalEnd,
   Building2,
@@ -24,7 +25,7 @@ export default function AdminDashboard() {
     return <p className="text-sm" style={{ color: C.muted }}>Loading…</p>;
   }
 
-  const productCount = data.brandsProducts.categories.reduce((n, c) => n + c.products.length, 0);
+  const productCount = countLeafProducts(data.brandsProducts.categories);
   const activeBrands = data.home.brands.filter((b) => b.active).length;
   const gridFilled = data.home.grid.items.filter((i) => i.src).length;
   const galleryImages = data.media.sections.reduce((n, s) => n + s.images.length, 0);
@@ -46,19 +47,19 @@ export default function AdminDashboard() {
     {
       href: "/admin/company-profile",
       icon: Building2,
-      title: "Company Profile",
+      title: "About Us",
       desc: `${data.companyProfile.tabs.length} tab${data.companyProfile.tabs.length === 1 ? "" : "s"} published`,
     },
     {
       href: "/admin/brands-products",
       icon: Package,
-      title: "Brands & Products",
+      title: "Products",
       desc: `${data.brandsProducts.categories.length} categories · ${productCount} products`,
     },
     {
       href: "/admin/investor-relation",
       icon: LineChart,
-      title: "Investor Relation",
+      title: "Investors",
       desc: `${data.investorRelation.items.length} categories · ${pdfCount} PDFs`,
     },
     {

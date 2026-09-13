@@ -3,13 +3,12 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import * as Icons from "lucide-react";
-import { Leaf, MapPin, Phone, Mail, Globe, Settings, ChevronDown, FileText } from "lucide-react";
+import { Leaf, MapPin, Phone, Mail, Globe, Settings, ChevronRight, FileText } from "lucide-react";
 import { C } from "./ui";
 import { getFooterSettings, getFileUrl } from "@/lib/api";
 import { useAppData } from "@/lib/DataContext";
 
-type FooterChild = { id: string; label: string; href: string; external: boolean };
-type FooterEntry = { id: string; label: string; href: string; children?: FooterChild[] };
+type FooterEntry = { id: string; label: string; href: string; external: boolean };
 type FooterColumn = { id: string; title: string; entries: FooterEntry[] };
 
 function SocialIcon({ name, size = 15, color }: { name: string; size?: number; color?: string }) {
@@ -17,66 +16,33 @@ function SocialIcon({ name, size = 15, color }: { name: string; size?: number; c
   return <Icon size={size} color={color} />;
 }
 
-function FooterLinkAnchor({ label, href, external }: { label: string; href: string; external: boolean }) {
-  const cls = "text-sm break-words transition-colors hover:text-white";
+// Every entry is a plain link — no expand/collapse. The small leading
+// arrow is purely decorative, just to give the list some visual rhythm.
+function FooterEntryRow({ entry }: { entry: FooterEntry }) {
+  const cls = "flex items-center gap-1.5 text-sm break-words transition-colors hover:text-white";
   const style = { color: "#ecf3ec" };
-  if (external) {
+  const arrow = (
+    <ChevronRight size={16} strokeWidth={3} className="shrink-0" style={{ color: C.gold }} />
+  );
+
+  if (entry.external) {
     return (
-      <a href={href} target="_blank" rel="noopener noreferrer" className={cls} style={style}>
-        {label}
+      <a href={entry.href} target="_blank" rel="noopener noreferrer" className={cls} style={style}>
+        {arrow}
+        <span className="min-w-0 break-words">{entry.label}</span>
       </a>
     );
   }
   return (
-    <Link href={href} className={cls} style={style}>
-      {label}
+    <Link href={entry.href} className={cls} style={style}>
+      {arrow}
+      <span className="min-w-0 break-words">{entry.label}</span>
     </Link>
   );
 }
 
-// A single row under a footer heading. Most entries are just a plain link.
-// But when an entry has its own sub-content (a Company Profile tab that
-// lists board/achievement members, or an Investor Relation item with PDFs
-// attached), it renders as its own small dropdown instead — collapsed by
-// default, expanding to show that sub-content when tapped. Entries with no
-// sub-content (a plain text tab, an investor item with no PDFs yet, any
-// media gallery) stay a simple link, no dropdown arrow at all.
-function FooterEntryRow({ entry }: { entry: FooterEntry }) {
-  const [open, setOpen] = useState(false);
-  const hasChildren = !!entry.children && entry.children.length > 0;
-
-  if (!hasChildren) {
-    return <FooterLinkAnchor label={entry.label} href={entry.href} external={false} />;
-  }
-
-  return (
-    <div className="min-w-0">
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        aria-expanded={open}
-        className="flex items-start gap-1.5 text-sm text-left transition-colors hover:text-white w-full"
-        style={{ color: "#ecf3ec" }}
-      >
-        <span className="break-words min-w-0">{entry.label}</span>
-        <ChevronDown size={12} className="shrink-0 mt-0.5" style={{ transform: open ? "rotate(180deg)" : "none", transition: "transform 0.15s" }} />
-      </button>
-      {open && (
-        <ul className="flex flex-col gap-2 mt-2 pl-3 min-w-0" style={{ borderLeft: "1px solid rgba(255,255,255,0.2)" }}>
-          {entry.children!.map((c) => (
-            <li key={c.id} className="text-xs min-w-0">
-              <FooterLinkAnchor label={c.label} href={c.href} external={c.external} />
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
-  );
-}
-
-// Column heading (Quick Links / Investors / Media) itself is always plain
-// text, never collapsible — only the individual entries beneath it turn
-// into dropdowns, and only the ones that actually have sub-content.
+// Column heading (Quick Links / Investors / Media) is plain text; entries
+// underneath are all simple links (see FooterEntryRow above).
 function FooterColumnBlock({ col }: { col: FooterColumn }) {
   return (
     <div className="min-w-0">
@@ -107,7 +73,7 @@ function FooterSkeleton() {
   );
   return (
     <footer style={{ backgroundColor: C.primary }}>
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-10 sm:pt-14 pb-8">
+      <div className="max-w-7xl mx-auto px-2 sm:px-3 pt-10 sm:pt-14 pb-8">
         <div className="grid gap-8 md:gap-10 md:grid-cols-[280px_1fr]">
           <div className="min-w-0 flex flex-col gap-3">
             <div className="flex items-center gap-2.5 mb-1">
@@ -169,55 +135,39 @@ export default function SiteFooter() {
   // content that drives the navbar dropdowns (Company Profile tabs,
   // Investor Relation items, Media galleries). Add/rename/remove a tab,
   // item or gallery on its own admin page and the footer updates itself —
-  // nothing to duplicate here.
-  //
-  // Each entry only becomes an expandable dropdown when it has its own
-  // sub-content:
-  //  - Quick Links: a "profile"/"achievement" tab lists its members/items
-  //  - Investors: an item expands to its attached PDFs (linking straight
-  //    to each file) if any have been uploaded
-  //  - Media: galleries have nothing further to drill into, so they always
-  //    stay a plain link
+  // nothing to duplicate here. Every entry is a plain link (see
+  // FooterEntryRow above) — no nested sub-content is shown here anymore.
+  const onlineShopUrl = s?.onlineShopUrl?.trim();
+  const onlineShopLabel = s?.onlineShopLabel?.trim() || "Online Shop";
+
   const columns: FooterColumn[] = [
     {
       id: "quick-links",
       title: "Quick Links",
-      entries: data.companyProfile.tabs.map((t) => {
-        const href = `/company-profile?tab=${t.id}`;
-        if (t.type === "profile" && t.items.length > 0) {
-          return {
-            id: t.id,
-            label: t.name,
-            href,
-            children: t.items.map((m) => ({ id: m.id, label: m.name, href, external: false })),
-          };
-        }
-        if (t.type === "achievement" && t.items.length > 0) {
-          return {
-            id: t.id,
-            label: t.name,
-            href,
-            children: t.items.map((a) => ({ id: a.id, label: a.title, href, external: false })),
-          };
-        }
-        return { id: t.id, label: t.name, href };
-      }),
+      entries: [
+        ...data.companyProfile.tabs.map((t) => ({
+          id: t.id,
+          label: t.name,
+          href: `/company-profile?tab=${t.id}`,
+          external: false,
+        })),
+        // The same "Online Shop" button configured for the navbar also
+        // appears as the last Quick Link, so it's reachable from the
+        // footer too.
+        ...(onlineShopUrl
+          ? [{ id: "online-shop", label: onlineShopLabel, href: onlineShopUrl, external: /^https?:\/\//i.test(onlineShopUrl) }]
+          : []),
+      ],
     },
     {
       id: "investors",
       title: "Investors",
-      entries: data.investorRelation.items.map((i) => {
-        const href = `/investor-relation?item=${i.id}`;
-        if (i.pdfs.length > 0) {
-          return {
-            id: i.id,
-            label: i.name,
-            href,
-            children: i.pdfs.map((p) => ({ id: p.id, label: p.name, href: getFileUrl(p.dataUrl), external: true })),
-          };
-        }
-        return { id: i.id, label: i.name, href };
-      }),
+      entries: data.investorRelation.items.map((i) => ({
+        id: i.id,
+        label: i.name,
+        href: `/investor-relation?item=${i.id}`,
+        external: false,
+      })),
     },
     {
       id: "media",
@@ -226,6 +176,7 @@ export default function SiteFooter() {
         id: sec.id,
         label: sec.title,
         href: `/media#${sec.id}`,
+        external: false,
       })),
     },
   ];
@@ -244,7 +195,7 @@ export default function SiteFooter() {
 
   return (
     <footer className="relative" style={{ backgroundColor: C.primary }}>
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-10 sm:pt-14 pb-8">
+      <div className="max-w-7xl mx-auto px-2 sm:px-3 pt-10 sm:pt-14 pb-8">
         {/* Brand block: logo/name/subtitle, description, and the
             certification badges directly underneath — all as one column
             on the left. */}
@@ -274,10 +225,10 @@ export default function SiteFooter() {
               </p>
             )}
 
-            {/* Certification badges — sit directly under the logo/name/
-                description, not as their own grid column. */}
+            {/* Certification badges — a stacked column directly under the
+                logo/name/description, not its own grid column. */}
             {certifications.length > 0 && (
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-col gap-2">
                 {certifications.map((c, i) => (
                   <div
                     key={i}
@@ -287,7 +238,7 @@ export default function SiteFooter() {
                     {c}
                   </div>
                 ))}
-                <div className="text-[11px] font-semibold basis-full mt-1" style={{ color: "#ecf3ec" }}>
+                <div className="text-[11px] font-semibold mt-1" style={{ color: "#ecf3ec" }}>
                   Certified Company
                 </div>
               </div>

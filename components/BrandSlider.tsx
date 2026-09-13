@@ -4,7 +4,7 @@ import { Brand } from "@/lib/types";
 import { getFileUrl } from "@/lib/api";
 import { C } from "./ui";
 
-export default function BrandSlider({ brands }: { brands: Brand[] }) {
+export default function BrandSlider({ brands, reverse = false }: { brands: Brand[]; reverse?: boolean }) {
   const active = brands.filter((b) => b.active && b.image);
 
   if (active.length === 0) {
@@ -22,7 +22,7 @@ export default function BrandSlider({ brands }: { brands: Brand[] }) {
     <div className="relative overflow-hidden py-4">
       <div className="pointer-events-none absolute inset-y-0 left-0 w-8 sm:w-12 md:w-16 z-10" style={{ background: `linear-gradient(to right, ${C.cream}, transparent)` }} />
       <div className="pointer-events-none absolute inset-y-0 right-0 w-8 sm:w-12 md:w-16 z-10" style={{ background: `linear-gradient(to left, ${C.cream}, transparent)` }} />
-      <div className="flex items-center gap-4 sm:gap-8 md:gap-12 w-max animate-brand-scroll">
+      <div className={`flex items-center gap-4 sm:gap-8 md:gap-12 w-max ${reverse ? "animate-brand-scroll-reverse" : "animate-brand-scroll"}`}>
         {loop.map((b, i) => (
           <div
             key={`${b.id}-${i}`}

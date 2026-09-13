@@ -29,14 +29,25 @@ export default function HomePage() {
       {/* Brand slider section */}
       <section className="py-12" style={{ backgroundColor: C.cream, borderTop: `1px solid ${C.border}`, borderBottom: `1px solid ${C.border}` }}>
         <div className="max-w-6xl mx-auto px-4 text-center mb-2">
-          <div className="text-xs font-semibold tracking-widest uppercase mb-2" style={{ color: C.gold }}>
-            Trusted Names
-          </div>
+         
           <h2 className="font-serif text-2xl sm:text-3xl" style={{ color: C.text }}>
             Our Brands
           </h2>
         </div>
         <BrandSlider brands={data.home.brands} />
+      </section>
+
+      {/* Brand partners strip — same marquee treatment as "Our Brands"
+          above, but scrolling in the opposite direction so the two rows
+          read as distinct from each other. */}
+      <section className="py-12" style={{ backgroundColor: "#fff", borderBottom: `1px solid ${C.border}` }}>
+        <div className="max-w-6xl mx-auto px-4 text-center mb-2">
+         
+          <h2 className="font-serif text-2xl sm:text-3xl" style={{ color: C.text }}>
+            Our Brand Partners
+          </h2>
+        </div>
+        <BrandSlider brands={data.home.partnerBrands} reverse />
       </section>
     </div>
   );
